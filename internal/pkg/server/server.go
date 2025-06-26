@@ -19,9 +19,11 @@ package server
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"sync"
 	"time"
@@ -70,13 +72,22 @@ func NewMetricsServer(
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.WriteHeader(http.StatusOK)
-		_, err := w.Write([]byte(`<html>
+
+		pprofLink := ""
+		if c.EnablePprof {
+			pprofLink = `<p><a href="./debug/pprof/">Profiling (pprof)</a></p>`
+		}
+
+		html := fmt.Sprintf(`<html>
 			<head><title>GPU Exporter</title></head>
 			<body>
 			<h1>GPU Exporter</h1>
 			<p><a href="./metrics">Metrics</a></p>
+			%s
 			</body>
-			</html>`))
+			</html>`, pprofLink)
+
+		_, err := w.Write([]byte(html))
 		if err != nil {
 			slog.Error("Failed to write response.", slog.String(logging.ErrorKey, err.Error()))
 			http.Error(w, internalServerError, http.StatusInternalServerError)
@@ -86,6 +97,11 @@ func NewMetricsServer(
 
 	router.HandleFunc("/health", serverv1.Health)
 	router.HandleFunc("/metrics", serverv1.Metrics)
+
+	if c.EnablePprof {
+		slog.Info("Enabling pprof endpoints at /debug/pprof/")
+		router.PathPrefix("/debug/pprof/").Handler(http.DefaultServeMux)
+	}
 
 	return serverv1, func() {}, nil
 }

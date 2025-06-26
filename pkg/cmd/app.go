@@ -92,6 +92,7 @@ const (
 	CLIHPCJobMappingDir           = "hpc-job-mapping-dir"
 	CLINvidiaResourceNames        = "nvidia-resource-names"
 	CLIKubernetesVirtualGPUs      = "kubernetes-virtual-gpus"
+	CLIEnablePprof                = "enable-pprof"
 )
 
 func NewApp(buildVersion ...string) *cli.App {
@@ -278,6 +279,12 @@ func NewApp(buildVersion ...string) *cli.App {
 			Value:   false,
 			Usage:   "Capture metrics associated with virtual GPUs exposed by Kubernetes device plugins when using GPU sharing strategies, e.g. time-sharing or MPS.",
 			EnvVars: []string{"KUBERNETES_VIRTUAL_GPUS"},
+		},
+		&cli.BoolFlag{
+			Name:    CLIEnablePprof,
+			Value:   false,
+			Usage:   "Enable golang pprof profiling endpoints at /debug/pprof/",
+			EnvVars: []string{"DCGM_EXPORTER_ENABLE_PPROF"},
 		},
 	}
 
@@ -669,6 +676,7 @@ func contextToConfig(c *cli.Context) (*appconfig.Config, error) {
 		HPCJobMappingDir:           c.String(CLIHPCJobMappingDir),
 		NvidiaResourceNames:        c.StringSlice(CLINvidiaResourceNames),
 		KubernetesVirtualGPUs:      c.Bool(CLIKubernetesVirtualGPUs),
+		EnablePprof:                c.Bool(CLIEnablePprof),
 	}, nil
 }
 

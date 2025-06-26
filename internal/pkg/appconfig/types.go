@@ -58,4 +58,5 @@ type Config struct {
 	HPCJobMappingDir           string
 	NvidiaResourceNames        []string
 	KubernetesVirtualGPUs      bool
+	EnablePprof                bool
 }
