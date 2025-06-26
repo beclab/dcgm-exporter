@@ -14,7 +14,7 @@
 
 include hack/VERSION
 
-REGISTRY             ?= nvidia
+REGISTRY             ?= beclab
 GO                   ?= go
 MKDIR                ?= mkdir
 GOLANGCILINT_TIMEOUT ?= 10m
@@ -48,7 +48,6 @@ check-format:
 
 push:
 	$(MAKE) ubuntu22.04 OUTPUT=type=registry
-	$(MAKE) ubi9 OUTPUT=type=registry
 
 local:
 ifeq ($(shell uname -p),aarch64)

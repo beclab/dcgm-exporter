@@ -1,0 +1,27 @@
+name: Build & Push Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      exporter_version:
+        description: 'New Exporter Version'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASS }}
+
+      - name: Build & Push Image
+        run:
+          make NEW_EXPORTER_VERSION=${{ github.event.inputs.exporter_version }} push
